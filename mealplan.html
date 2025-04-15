@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="csssheet.css">
+        <title>Meal Plan</title>
+    </head>
+    <body>
+        <header>
+            <h1>nutrio</h1>
+            <img src="Nutriologo.JPG" alt="A picture of Nutrio logo">
+            <p>Healthy eating made easy. Your ultimate food tracker awaits</p>
+        </header>
+        <main>
+            <div class="question">
+                <h2>Are you planning to build a meal plan based on your body composition?</h2>
+                <button type="button" onclick="showCalories();" aria-label="Show calorie suggestion">Yes</button>
+                <button type="button" onclick="showMealPlanSections();" aria-label="Skip calorie suggestion">No</button>
+            </div>
+
+            <div class="meal-lengths" style="display: none;">
+                <h2>How long do you want the meal plan to be?</h2>
+                <label for="meal-length">Meal Plan Length:</label>
+                <select name="meal-length" id="meal-length" required>
+                    <option value="" disabled selected>Select the length of the meal plan</option>
+                    <option value="1">1 day</option>
+                    <option value="3">3 days</option>
+                    <option value="7">7 days</option>
+                    <option value="14">14 days</option>
+                    <option value="30">30 days</option>
+                </select>
+            </div>
+
+            <div class="allergies" style="display: none;">
+                <h2>Do you have any food allergies?</h2>
+                <label for="allergies">Food Allergies:</label>
+                <select name="allergies" id="allergies" required>
+                    <option value="" disabled selected>Select your allergies</option>
+                    <option value="none">None</option>
+                    <option value="nuts">Nuts</option>
+                    <option value="dairy">Dairy</option>
+                    <option value="gluten">Gluten</option>
+                    <option value="seafood">Seafood</option>
+                </select>
+            </div>
+
+            <div class="meal-preference" style="display: none;">
+                <h2>Do you have any meal preferences?</h2>
+                <div id="meal-preference">
+                    <input type="checkbox" id="pasta" value="pasta">
+                    <label for="pasta">Pasta</label><br>
+                    <input type="checkbox" id="vegetarian" value="vegetarian">
+                    <label for="vegetarian">Vegetarian</label><br>
+                    <input type="checkbox" id="dairy" value="dairy">
+                    <label for="dairy">Dairy</label><br>
+                    <input type="checkbox" id="seafood" value="seafood">
+                    <label for="seafood">Seafood</label><br>
+                    <input type="checkbox" id="none" value="none">
+                    <label for="none">None</label>
+                </div>
+            </div>
+
+            <div class="food-intake" style="display: none;">
+                <h2>How many meals do you eat a day?</h2>
+                <label for="meals-per-day">Meals per Day:</label>
+                <select name="meals-per-day" id="meals-per-day" required>
+                    <option value="" disabled selected>Select the number of meals</option>
+                    <option value="1">1 meal</option>
+                    <option value="2">2 meals</option>
+                    <option value="3">3 meals</option>
+                    <option value="4">4 meals</option>
+                    <option value="5">5 meals</option>
+                </select>
+            </div>
+
+            <button id="submit-button" type="button" style="display: none;">Submit</button>
+
+            <div class="meal-plan" style="display: none;">
+                <h2>Your Personalized Meal Plan</h2>
+                <p id="meal-plan-content">Here are some food from our database that you can eat</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>2025 Nutrio. All rights reserved.</p>
+            <button type="button" onclick="location.href='contactpage.html';" aria-label="Contact Us">Contact Us</button>
+        </footer>
+
+        <script src="fooddata.js"></script>
+        <script>
+            const NO_ALLERGIES = "none";
+            const CALORIES_KEY = "calories";
+            const GUEST_PAGE = "guest.html";
+
+            // Function to show the calorie suggestion and proceed to meal plan sections
+            function showCalories() {
+                const calories = parseInt(localStorage.getItem(CALORIES_KEY));
+                if (calories) {
+                    alert(`Your daily calorie requirement is approximately ${calories} calories.`);
+                    showMealPlanSections();
+                } else {
+                    alert('No calorie data found. Please go back to the guest page and calculate your calories.');
+                    location.href = GUEST_PAGE;
+                }
+            }
+
+            // Function to display the meal plan input sections
+            function showMealPlanSections() {
+                document.querySelector('.question').style.display = 'none';
+                document.querySelector('.meal-lengths').style.display = 'block';
+                document.querySelector('.allergies').style.display = 'block';
+                document.querySelector('.meal-preference').style.display = 'block';
+                document.querySelector('.food-intake').style.display = 'block';
+                document.getElementById('submit-button').style.display = 'block';
+            }
+
+            // Function to shuffle an array of food items
+            function shuffleFoodList(foodArray) {
+                for (let f = foodArray.length - 1; f > 0; f--) {
+                    const randomIndex = Math.floor(Math.random() * (f + 1));
+                    [foodArray[f], foodArray[randomIndex]] = [foodArray[randomIndex], foodArray[f]];
+                }
+                return foodArray;
+            }
+
+            // Function to validate user inputs
+            function validateInputs(mealLength, allergies, preferences, mealsPerDay) {
+                if (!mealLength || !allergies || preferences.length === 0 || !mealsPerDay) {
+                    alert('Please fill out all fields.');
+                    return false;
+                }
+                return true;
+            }
+
+            // Function to filter foods based on user preferences and allergies
+            function filterFoods(allergies, preferences, foodData) {
+                return foodData.filter(food => {
+                    return (
+                        (allergies === NO_ALLERGIES || !food.tags.includes(allergies)) &&
+                        (preferences.includes(NO_ALLERGIES) || preferences.some(preference => food.tags.includes(preference)))
+                    );
+                });
+            }
+
+            // Function to generate the meal plan
+            function generateMealPlan(shuffledFoods, mealLength, mealsPerDay) {
+                const mealPlan = [];
+                let totalCalories = 0;
+
+                const mealsPerDayPlan = mealsPerDay * mealLength;
+                const selectedFoods = shuffledFoods.slice(0, mealsPerDayPlan);
+
+                for (let day = 0; day < mealLength; day++) {
+                    const dailyMeals = selectedFoods.slice(day * mealsPerDay, (day + 1) * mealsPerDay);
+                    const dailyCalories = dailyMeals.reduce((sum, food) => sum + food.caloriesPerServing, 0);
+
+                    totalCalories += dailyCalories;
+                    mealPlan.push(`Day ${day + 1}: ${dailyMeals.map(food => food.name).join(", ")} (Total: ${dailyCalories} calories)`);
+                }
+
+                return { mealPlan, totalCalories };
+            }
+
+            // Event listener for the submit button
+            document.getElementById('submit-button').addEventListener('click', () => {
+                const mealLength = parseInt(document.getElementById('meal-length').value);
+                const allergies = document.getElementById('allergies').value;
+                const preferences = Array.from(document.querySelectorAll('#meal-preference input:checked')).map(input => input.value);
+                const mealsPerDay = parseInt(document.getElementById('meals-per-day').value);
+
+                if (!validateInputs(mealLength, allergies, preferences, mealsPerDay)) return;
+
+                const calories = parseInt(localStorage.getItem(CALORIES_KEY));
+                if (!calories) {
+                    alert('No calorie data found. Please go back to the guest page and calculate your calories.');
+                    location.href = GUEST_PAGE;
+                    return;
+                }
+
+                const filteredFoods = filterFoods(allergies, preferences, foodData);
+                if (filteredFoods.length === 0) {
+                    alert('No foods match your criteria. Please adjust your preferences.');
+                    return;
+                }
+
+                const shuffledFoods = shuffleFoodList([...filteredFoods]);
+                const { mealPlan, totalCalories } = generateMealPlan(shuffledFoods, mealLength, mealsPerDay);
+
+                if (totalCalories < calories) {
+                    alert(`Your meal plan is under your daily calorie suggestion of ${calories} calories. Consider adding more meals.`);
+                }
+
+                document.querySelector('.meal-plan').style.display = 'block';
+                document.getElementById('meal-plan-content').innerHTML = mealPlan.join('<br>');
+            });
+        </script>
+    </body>
+</html>
