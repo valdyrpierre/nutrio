@@ -323,17 +323,57 @@ a:hover {
 /* Responsive Styling */
 @media (max-width: 768px) {
     header h1 {
-        font-size: 2em; /* Reduce font size for smaller screens */
+        font-size: 1.8em; /* Reduce font size for smaller screens */
     }
 
     section {
-        padding: 15px; /* Reduce padding */
-        margin: 10px; /* Reduce margin */
+        padding: 10px; /* Reduce padding */
+        margin: 5px; /* Reduce margin */
     }
 
     button {
         font-size: 14px; /* Adjust button size */
         padding: 8px 10px; /* Adjust padding */
+    }
+
+    .login-form {
+        width: 90%; /* Make the form take more space on smaller screens */
+    }
+
+    .mealplan-button {
+        font-size: 16px; /* Reduce button font size */
+        padding: 10px 20px; /* Adjust padding */
+    }
+}
+
+/* For mobile phones (max-width: 480px) */
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.5em; /* Further reduce font size */
+    }
+
+    header img {
+        width: 80px; /* Reduce logo size */
+    }
+
+    section {
+        padding: 8px; /* Reduce padding further */
+        margin: 5px; /* Reduce margin */
+    }
+
+    button {
+        font-size: 12px; /* Smaller button font size */
+        padding: 6px 8px; /* Smaller padding */
+    }
+
+    .login-form {
+        width: 100%; /* Full width for the form */
+        padding: 15px; /* Adjust padding */
+    }
+
+    .mealplan-button {
+        font-size: 14px; /* Smaller button font size */
+        padding: 8px 15px; /* Adjust padding */
     }
 }
 
